@@ -3,23 +3,6 @@ package ieeextreme8;
 import java.util.Arrays;
 
 public class PlayWithGCD {
-
-	// regular gcd algorithm in loop form
-	public static int gcd(int a, int b) {
-		
-		int d = 0;
-		do
-	    {
-	        d = a % b;
-	        if(d == 0)
-	            break;
-	        a = b;
-	        b = d;
-	    }
-	    while(true);
-		
-		return b;
-	}
 	
 	// binary implementation of Euclid's algorithm
 	public static int gcdBinary(int a, int b) {
@@ -118,34 +101,93 @@ public class PlayWithGCD {
 					// find new GCD and add
 					int b = gcdBinary(r, balls[c]);
 					int nb = modsub(modmul2(t[r][c-1], counts[c]), t[r][c-1]); // (# ways gcd=r) * (2^(#c)-1)
-					t[b][c] += nb;
+					t[b][c] = (t[b][c] + nb) % MODULO;
 				}
 			}
 			
 			// new ways of GCD without previous balls
-			t[balls[c]][c] += modsub(modmul2(1, counts[c]), 1); //1*2^e-1;
+			t[balls[c]][c] = (t[balls[c]][c] + modsub(modmul2(1, counts[c]), 1)) % MODULO; //1*2^e-1;
 		}
 		
 		int[] out = new int[Q.length];
 		for (int i=0; i<Q.length; i++) {
-			out[i] = t[Q[i]][nballs-1];
+			if (Q[i] <= maxGCD) {
+				out[i] = t[Q[i]][nballs-1];
+			} else {
+				out[i] = 0;
+			}
 		}
 		
 		return out;
 	}
 	
+	// brute force implementation
+	public static int[] playWithGCDBrute(int[] balls, int[] Q) {
+		
+		int lastMask = (1<<balls.length)-1;
+		int maxBall = balls[0];
+		for (int i=1; i<balls.length; ++i) {
+			if (balls[i] > maxBall) {
+				maxBall = balls[i];
+			}
+		}
+		
+		int[] s = new int[maxBall+1];
+		
+		for (long m = 1; m<=lastMask; m++) {
+			
+			long mask = m;
+			int g = -1;
+			for (int i=0; i<balls.length; ++i) {
+				if ((mask&1) > 0) {
+					if (g < 0) {
+						g = balls[i];
+					} else {
+						g = gcdBinary(g, balls[i]);
+					}
+				}
+				mask = (mask >> 1);
+			}
+			
+			s[g] = (s[g] + 1) % MODULO;
+			
+		}
+		
+		int[] out = new int[Q.length];
+		for (int i=0; i<Q.length; ++i) {
+			if (Q[i] <= maxBall) {
+				out[i] = s[Q[i]];
+			} else {
+				out[i] = 0;
+			}
+		}
+		return out;
+		
+	}
+	
 	public static void main(String[] args) {
 		
-		int[][] balls = {{2,3,5,6,6}, {2, 3, 3, 5, 6, 6, 6}};
-		int[][] Q = {{2, 5}, {1, 2, 3, 5, 6}};
+		int[][] balls = {{2,3,5,6,6}, {2, 3, 3, 5, 6, 6, 6}, {2, 2, 1, 4, 6, 6, 4, 6, 4, 10, 21231, 21231, 21231, 21231, 5, 2, 2, 2, 5, 6, 4, 3, 234},
+				{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+			     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+			     4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4}};
+		int[][] Q = {{2, 5}, {1, 2, 3, 5, 6}, {1, 2, 3, 4, 5, 6}, {0, 1, 2, 3, 4}};
 		
 		for (int i=0; i<balls.length; i++) {
-			
 			int[] out = playWithGCD(balls[i], Q[i]);
-			
 			for (int j=0; j<out.length; j++) {
 				System.out.print(out[j] + " ");
 			}
+			System.out.println();
+			
+			//         // brute force
+			//			int[] out2 = playWithGCDBrute(balls[i], Q[i]);
+			//			System.out.print(" ( ");
+			//			for (int j=0; j<out2.length; j++) {
+			//				System.out.print(out2[j] + " ");
+			//			}
+			//			System.out.print(")");
 			System.out.println();
 		}
 	}

@@ -117,7 +117,7 @@ public class Kabloom {
 		};
 		
 		for (int i=0; i<s.length; i++) {
-			int kb = kabloom(s[i][0], s[i][1]);
+			kabloom(s[i][0], s[i][1]);
 		}
 	}
 	

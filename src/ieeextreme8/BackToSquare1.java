@@ -9,12 +9,15 @@ public class BackToSquare1 {
 		int n = p.length;
 		double prod = 1;
 		double s = 1;
-		for (int i=0; i<n-1; i++) {
-			prod = prod*p[i];
-			s += prod;
+		
+		if (n > 0) {
+			for (int i=0; i<n-1; i++) {
+				prod = prod*p[i];
+				s += prod;
+			}
+			prod = prod*p[n-1];
+			s = 1 + s/prod;
 		}
-		prod = prod*p[n-1];
-		s = 1 + s/prod;
 		
 		return s;
 	}
